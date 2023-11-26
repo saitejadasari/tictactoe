@@ -5,7 +5,7 @@ import time
 import tictactoe as ttt
 
 pygame.init()
-size = width, height = 600, 400
+size = width, height = 800, 800
 
 # Colors
 black = (0, 0, 0)
@@ -17,8 +17,10 @@ mediumFont = pygame.font.Font("OpenSans-Regular.ttf", 28)
 largeFont = pygame.font.Font("OpenSans-Regular.ttf", 40)
 moveFont = pygame.font.Font("OpenSans-Regular.ttf", 60)
 
+board_size = 3
+
 user = None
-board = ttt.initial_state()
+board = ttt.initial_state(board_size)
 print("Initial board", board)
 ai_turn = False
 
@@ -73,9 +75,9 @@ while True:
         tile_origin = (width / 2 - (1.5 * tile_size),
                        height / 2 - (1.5 * tile_size))
         tiles = []
-        for i in range(3):
+        for i in range(board_size):
             row = []
-            for j in range(3):
+            for j in range(board_size):
                 rect = pygame.Rect(
                     tile_origin[0] + j * tile_size,
                     tile_origin[1] + i * tile_size,
@@ -125,8 +127,8 @@ while True:
         click, _, _ = pygame.mouse.get_pressed()
         if click == 1 and user == player and not game_over:
             mouse = pygame.mouse.get_pos()
-            for i in range(3):
-                for j in range(3):
+            for i in range(board_size):
+                for j in range(board_size):
                     if (board[i][j] == ttt.EMPTY and tiles[i][j].collidepoint(mouse)):
                         board = ttt.result(board, (i, j))
 
@@ -143,7 +145,7 @@ while True:
                 if againButton.collidepoint(mouse):
                     time.sleep(0.2)
                     user = None
-                    board = ttt.initial_state()
+                    board = ttt.initial_state(board_size)
                     ai_turn = False
 
     pygame.display.flip()

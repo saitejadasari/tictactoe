@@ -19,6 +19,13 @@ def initial_state():
             [EMPTY, EMPTY, EMPTY]]
 
 
+def initial_state(board_size):
+    """
+    Returns starting state of the board.
+    """
+    return [[EMPTY for j in range(board_size)] for i in range(board_size)]
+
+
 def player(board):
     """
     Returns player who has the next turn on a board.
@@ -80,16 +87,17 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
+    board_size = len(board)
     for player in (X, O):
         
         # Horizontal check
         for row in board:
-            if row == [player] * 3:
+            if row == [player] * board_size:
                 return player
 
         # Vertical check
         for i in range(len(board)):
-            win = [player]*3
+            win = [player]*board_size
             pos = []
             for j in range(len(board)):
                 if board[j][i] == player:
@@ -108,7 +116,7 @@ def winner(board):
                 if (i + j) == (len(board) - 1):
                     rev_diag_check.append(board[i][j])
 
-        if diag_check == [player]*3 or rev_diag_check == [player]*3:
+        if diag_check == [player]*board_size or rev_diag_check == [player]*board_size:
             return player
 
 
@@ -159,29 +167,39 @@ def minimax(board):
 
         if curr_player == X:
             my_best_move = -100
+            alpha = -float('inf')
+            beta = float('inf')
             for act in actions_list:
                 new_board = result(board, act)
-                opp_best_move = minimize(new_board)
+                opp_best_move = minimize(new_board, alpha, beta)
+                print("For player:", curr_player, "Opp best move for Action:", act, "is", opp_best_move)
                 if my_best_move < opp_best_move:
                     my_best_move = opp_best_move
                     final_act = act
+                alpha = max(alpha, my_best_move)
+                if alpha >= beta:
+                    break
             print("Final action by X", final_act, my_best_move)
             return final_act
         elif curr_player == O:
             my_best_move = 100
+            alpha = -float('inf')
+            beta = float('inf')
             for act in actions_list:
                 new_board = result(board, act)
-                opp_best_move = maximize(new_board)
+                opp_best_move = maximize(new_board, alpha, beta)
+                print("For player:", curr_player, "Opp best move for Action:", act, "is", opp_best_move)
                 if opp_best_move < my_best_move:
                     my_best_move = opp_best_move
                     final_act = act
+                beta = min(beta, my_best_move)
+                if alpha >= beta:
+                    break
             print("Final action by O", final_act, my_best_move)
             return final_act
 
-        
 
-def maximize(board):
-
+def maximize(board, alpha, beta):
     val = -100
     if terminal(board):
         return utility(board)
@@ -189,13 +207,14 @@ def maximize(board):
         actions_list = actions(board)
         for act in actions_list:
             new_board = result(board, act)
-            val = max(val, minimize(new_board))
-
+            val = max(val, minimize(new_board, alpha, beta))
+            alpha = max(alpha, val)
+            if alpha >= beta:
+                break
     return val
 
 
-def minimize(board):
-    
+def minimize(board, alpha, beta):
     val = 100
     if terminal(board):
         return utility(board)
@@ -203,6 +222,80 @@ def minimize(board):
         actions_list = actions(board)
         for act in actions_list:
             new_board = result(board, act)
-            val = min(val, maximize(new_board))
-
+            val = min(val, maximize(new_board, alpha, beta))
+            beta = min(beta, val)
+            if alpha >= beta:
+                break
     return val
+
+# def minimax(board):
+#     """
+#     Returns the optimal action for the current player on the board.
+#     """
+#     print("Starting Minimax process...")
+#     if terminal(board):
+#         return None
+#     else:
+#         actions_list = actions(board)
+#         curr_player = player(board)
+#         print("Actions list", actions_list)
+
+#         if curr_player == X:
+#             my_best_move = -100
+#             for act in actions_list:
+#                 new_board = result(board, act)
+#                 opp_best_move = minimize(new_board)
+#                 print("For player:", curr_player, "Opp best move for Action:", act, "is", opp_best_move)
+#                 if my_best_move < opp_best_move:
+#                     my_best_move = opp_best_move
+#                     final_act = act
+#             print("Final action by X", final_act, my_best_move)
+#             return final_act
+#         elif curr_player == O:
+#             my_best_move = 100
+#             for act in actions_list:
+#                 new_board = result(board, act)
+#                 opp_best_move = maximize(new_board)
+#                 print("For player:", curr_player, "Opp best move for Action:", act, "is", opp_best_move)
+#                 if opp_best_move < my_best_move:
+#                     my_best_move = opp_best_move
+#                     final_act = act
+#             print("Final action by O", final_act, my_best_move)
+#             return final_act
+
+        
+
+# def maximize(board):
+
+#     val = -100
+#     if terminal(board):
+#         return utility(board)
+#     else:
+#         actions_list = actions(board)
+#         for index, act in enumerate(actions_list):
+#             print("index", index, "action", act, "in maximize")
+#             if index >=1:
+#                 print('breaking')
+#                 return val
+#             new_board = result(board, act)
+#             val = max(val, minimize(new_board))
+
+#     return val
+
+
+# def minimize(board):
+    
+#     val = 100
+#     if terminal(board):
+#         return utility(board)
+#     else:
+#         actions_list = actions(board)
+#         for index, act in enumerate(actions_list):
+#             print("index", index, "action", act, "in minimize")
+#             if index >=1:
+#                 print('breaking')
+#                 return val
+#             new_board = result(board, act)
+#             val = min(val, maximize(new_board))
+
+#     return val
